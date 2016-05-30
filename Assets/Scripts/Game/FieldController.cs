@@ -258,7 +258,7 @@ public class FieldController : MonoBehaviour {
         else return null;
     }
 
-    public Vector3 BlockPositionForFieldXY (int x, int y)
+    public Vector3 GetBlockPositionForFieldXY (int x, int y)
     {
         //Multiply offset by the x,y to find the spot it should be at.
         Vector3 pos = blockCenterOffset + new Vector3(blockSize.x * x, blockSize.y * y, 0);
@@ -268,7 +268,7 @@ public class FieldController : MonoBehaviour {
         return pos;
     }
 
-    public int BlockXForPosition (Vector3 pos)
+    public int GetBlockXForPosition (Vector3 pos)
     {
         int x;
         int y;
@@ -286,7 +286,7 @@ public class FieldController : MonoBehaviour {
         return x;
     }
 
-    public int BlockYForPosition(Vector3 pos)
+    public int GetBlockYForPosition(Vector3 pos)
     {
         int y;
         Vector3 reversePos = pos;
@@ -332,7 +332,7 @@ public class FieldController : MonoBehaviour {
 
     void CreateBlock (GameObject blockPrefab, int newX, int newY, string newSpecial = "None")
     {
-        GameObject block = Instantiate(blockPrefab, BlockPositionForFieldXY(newX, newY), Quaternion.identity) as GameObject;
+        GameObject block = Instantiate(blockPrefab, GetBlockPositionForFieldXY(newX, newY), Quaternion.identity) as GameObject;
         block.transform.parent = this.transform;
 
         BlockScript blockScript = block.GetComponent<MonoBehaviour>() as BlockScript;
