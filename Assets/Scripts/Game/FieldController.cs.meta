@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 16e8c49b0d33ff8429f4fe260290a9af
+timeCreated: 1462351899
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - gameController: {fileID: 122776, guid: c9970cc1414f2d6418a9b2cb6f114f12, type: 2}
+  - redBlockPrefab: {fileID: 184930, guid: d7a7da3dcb7dfe94b8bf6c4ff6be7324, type: 2}
+  - yellowBlockPrefab: {fileID: 184930, guid: ecc8f2bf97d8ded42950d6ae469df8a1, type: 2}
+  - greenBlockPrefab: {fileID: 184930, guid: 59f74c3697caf4e42ac00a1ba0c1615d, type: 2}
+  - blueBlockPrefab: {fileID: 184930, guid: 50877da547fd0bb42aa35a97bea63122, type: 2}
+  - purpleBlockPrefab: {fileID: 184930, guid: 24bb4847617ec0d4e8e03d39e9cc0ab8, type: 2}
+  - pinkBlockPrefab: {fileID: 184930, guid: e2e28e836cef5d047b98c5f481724cbd, type: 2}
+  - whiteBlockPrefab: {fileID: 184930, guid: e7aee92032768124c995acbc4959d0fc, type: 2}
+  - gameControllerScript: {instanceID: 0}
+  - fieldRenderer: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

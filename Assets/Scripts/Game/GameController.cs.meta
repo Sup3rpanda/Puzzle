@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 13825d5e5700e3a4db57b4c63dcea5f2
+timeCreated: 1462351930
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - player: {instanceID: 0}
+  - fieldController: {fileID: 150764, guid: 0f0a6040617c1f1459507017dc533b18, type: 2}
+  - timeUI: {instanceID: 0}
+  - scoreUI: {instanceID: 0}
+  - stopUI: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 7a1ce264bb50f5e468a795fef3ad7890
+timeCreated: 1462351954
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - fieldController: {fileID: 150764, guid: 0f0a6040617c1f1459507017dc533b18, type: 2}
+  - fxController: {fileID: 193292, guid: d53f0a655cf15844295b6b7edf5ea379, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
