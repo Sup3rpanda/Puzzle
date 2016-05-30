@@ -43,36 +43,48 @@ public class BlockScript : MonoBehaviour {
         if (isHeld == true)
         {
             float xMovement = Input.GetAxis("Mouse X") * 12f * Time.deltaTime;
-            int xForPosition = fieldScript.BlockXForPosition(transform.position);
+            int xForPosition = fieldScript.GetBlockXForPosition(transform.position);
+            BlockScript swapBlock;
 
             //print("Held block (x,y),(pX): (" + x + ", " + y + ") (" + xForPosition + ")");
 
-            if ( xMovement > 0 )
+            if ( xMovement > 0 ) //Moving right
             {
-                if (x < 5)
+                if (x < 5 )
                 {
-                    transform.Translate(xMovement, 0f, 0f);
-                    if (xForPosition != x)
+                    swapBlock = fieldScript.GetBlockForXY(x + 1, y);
+
+                    if (swapBlock == null || swapBlock.isMatch == false)
                     {
-                        ChangeBlock(xForPosition, y);
+                        transform.Translate(xMovement, 0f, 0f);
+                        if (xForPosition != x)
+                        {
+                            ChangeBlock(xForPosition, y);
+                        }
                     }
                 }
             }
-            else if ( xMovement < 0 )
+            else if ( xMovement < 0 ) //Moving Left
             {
                 if (x > 0)
                 {
-                    transform.Translate(xMovement, 0f, 0f);
-                    if (xForPosition != x)
+                    swapBlock = fieldScript.GetBlockForXY(x - 1, y);
+                    print(swapBlock);
+
+                    if ( swapBlock == null || swapBlock.isMatch == false)
                     {
-                        ChangeBlock(xForPosition, y);
+                        transform.Translate(xMovement, 0f, 0f);
+                        if (xForPosition != x)
+                        {
+                            ChangeBlock(xForPosition, y);
+                        }
                     }
                 }
             }
 
             DropBlock(fieldScript.CheckForHolesAtBlock(this));
 
-            fieldScript.CheckForMatchesAtBlock(this);
+            fieldScript.CheckForMatchesAtBlock(this, true);
 
         }
 
@@ -188,11 +200,11 @@ public class BlockScript : MonoBehaviour {
         }
         else if (isMoving == true) //Update held blocks PutDown()
         {
-            transform.Translate(Vector3.MoveTowards(transform.position, fieldScript.BlockPositionForFieldXY(newX, newY), 6f) - transform.position);
+            transform.Translate(Vector3.MoveTowards(transform.position, fieldScript.GetBlockPositionForFieldXY(newX, newY), 6f) - transform.position);
         }
         else if ( isHeld == false && newSpecial != "New" ) //Move existing blocks
         {
-            transform.Translate(fieldScript.BlockPositionForFieldXY(newX, newY) - fieldScript.BlockPositionForFieldXY(x, y));
+            transform.Translate(fieldScript.GetBlockPositionForFieldXY(newX, newY) - fieldScript.GetBlockPositionForFieldXY(x, y));
             
             x = newX;
             y = newY;
