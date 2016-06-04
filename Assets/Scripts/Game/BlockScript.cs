@@ -107,7 +107,10 @@ public class BlockScript : MonoBehaviour {
     #region Input
     void OnMouseDown()
     {
-        PickUpBlock();
+        if (fieldScript.gameControllerScript.IsPlayable() == true)
+        {
+            PickUpBlock();
+        }
     }
 
     void OnMouseUp()

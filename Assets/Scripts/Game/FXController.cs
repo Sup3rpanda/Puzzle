@@ -5,9 +5,10 @@ public class FXController : MonoBehaviour {
 
     //Game Object vars
     AudioSource audioSource;
+    public AudioClip aStartGame;
     public AudioClip aLosing;
     public AudioClip aLose;
-    public AudioClip aWin;
+    public AudioClip aWon;
     public AudioClip aBlockSwap;
     public AudioClip aCombo;
     public AudioClip aMatch;
@@ -24,6 +25,11 @@ public class FXController : MonoBehaviour {
 	
 	}
 
+    void StartGame()
+    {
+        audioSource.PlayOneShot(aStartGame);
+    }
+
     void Losing()
     {
         audioSource.PlayOneShot(aLosing);
@@ -34,9 +40,9 @@ public class FXController : MonoBehaviour {
         audioSource.PlayOneShot(aLose);
     }
 
-    void Win()
+    void Won()
     {
-        audioSource.PlayOneShot(aWin);
+        audioSource.PlayOneShot(aWon);
     }
 
     void BlockSwap()

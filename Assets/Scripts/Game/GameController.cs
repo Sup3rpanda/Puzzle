@@ -1,6 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections;
+
+public enum GameType { Endless, Arcade };
+public enum GameMode { Classic, Plus };
+public enum GameState { Loading, Paused, Playing, Countdown, Lost, Won }
 
 public class GameController : MonoBehaviour {
 
@@ -8,38 +13,46 @@ public class GameController : MonoBehaviour {
     public GameObject player;
     public GameObject fieldController;
     public GameObject fxController;
-    public Text timeUI, scoreUI, hiScoreUI, roundUI, speedUI, difficultyUI, stopUI;
+    public Text timeUI, scoreUI, hiScoreUI, roundUI, speedUI, difficultyUI, stopUI, readyUI;
 
     FieldController fieldScript;
-    BlockScript blockScript;
     FXController fxControllerScript;
 
-
     //Level Settings
-    string gameType = "Endless";
+    public GameType gameType = GameType.Endless;
+    public GameMode gameMode = GameMode.Classic;
+    public GameState gameState = GameState.Loading;
+    int score = 0;
+    #region Vs Vars
     int difficulty = 1;
     int roundsBestOf = 3;
     int roundsPlayer = 0;
     int roundsOpponent = 0;
-
+    #endregion
+    #region Countdown Vars
+    float countdownDelay = 1f;
+    float countdownElapsed = 0f;
+    #endregion
     //Game Setting vars
     public float matchDelay = 1f;
     public float comboGrace = .75f;
     float elapsedTime = 0f;
+    #region Push Vars
     float nextPushTime;
-    public float timeToPush = 3f;
+    public float timeToPush = 5f;
     public float pushCooldown = .5f;
     float pushCooldownTime;
-
+    #endregion
+    #region Stop Vars
     float stop = 0f;
     float stopMax = 8f;
-
+    #endregion
+    #region Losing Vars
     public bool isLosingPlayer = false;
     public bool isLosingOpponent = false;
     float loseTime = 0f;
     public float timeToLose = 2f;
-
-    int score = 0;
+    #endregion
 
     // Use this for initialization
     void Start () {
@@ -53,39 +66,117 @@ public class GameController : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        elapsedTime += Time.deltaTime;
-        timeUI.text = elapsedTime.ToString();
 
-        //Stop timing
-        if (stop > 0)
+        if (gameState == GameState.Playing)
         {
-            stop -= Time.deltaTime;
-            stopUI.text = stop.ToString();
-        }
-        else
-        {
-            stop = 0f;
-            stopUI.text = stop.ToString();
+            elapsedTime += Time.deltaTime;
+            timeUI.text = elapsedTime.ToString();
 
-            //Push timing
-            if (elapsedTime > nextPushTime )
+            //Stop timing
+            if (stop > 0)
             {
-                Push();
+                stop -= Time.deltaTime;
+                stopUI.text = stop.ToString();
             }
-
-            //Lose timing
-            if (isLosingPlayer == true)
+            else
             {
+                stop = 0f;
+                stopUI.text = stop.ToString();
 
-                if (elapsedTime > loseTime && loseTime > 0)
+                //Push timing
+                if (elapsedTime > nextPushTime)
                 {
-                    print("LOSE");
-                    fxController.SendMessage("Lose");
-                    Time.timeScale = 0f;
+                    Push();
+                }
+
+                //Lose timing
+                if (isLosingPlayer == true)
+                {
+                    if (elapsedTime > loseTime && loseTime > 0)
+                    {
+                        StateStartLost();
+                    }
                 }
             }
         }
+
+        //All other non playing states
+        if (gameState == GameState.Loading && SceneManager.GetActiveScene().isLoaded)
+        {
+            StateStartCountdown();
+        }
+        if (gameState == GameState.Countdown)
+        {
+            countdownElapsed += Time.deltaTime;
+
+            if (countdownElapsed > countdownDelay)
+            {
+                StateStartPlaying();
+            }
+        }
+        if ( Input.GetButtonDown("Cancel") )
+        {
+            TogglePaused();
+        }
     }
+
+    #region State Control
+    public bool IsPlayable()
+    {
+        if ( gameState == GameState.Playing)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void TogglePaused()
+    {
+        if (gameState == GameState.Playing)
+        {
+            readyUI.text = "Paused, ESC to Continue";
+            readyUI.enabled = true;
+            gameState = GameState.Paused;
+        }
+        else if (gameState == GameState.Paused)
+        {
+            StateStartPlaying();
+        }
+    }
+
+    void StateStartCountdown()
+    {
+        readyUI.enabled = true;
+        gameState = GameState.Countdown;
+    }
+
+    void StateStartPlaying()
+    {
+        fxControllerScript.SendMessage("StartGame");
+        readyUI.enabled = false;
+        gameState = GameState.Playing;
+    }
+
+    void StateStartPaused()
+    {
+        gameState = GameState.Paused;
+    }
+
+    void StateStartLost()
+    {
+        fxController.SendMessage("Lose");
+        gameState = GameState.Lost;
+    }
+
+    void StateStartWon()
+    {
+        fxController.SendMessage("Win");
+        gameState = GameState.Won;
+    }
+    #endregion
 
     public void PushManual()
     {
@@ -154,6 +245,12 @@ public class GameController : MonoBehaviour {
         {
             float stopBonusTime = Mathf.RoundToInt(Mathf.Pow(2, matchSize)) * 0.03f;
             stop += stopBonusTime;
+
+            if ( stop > stopMax)
+            {
+                stop = stopMax;
+            }
+
             nextPushTime += stopBonusTime;
             timeToLose += stopBonusTime;
             stopUI.text = stop.ToString();
