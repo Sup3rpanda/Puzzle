@@ -2,12 +2,13 @@
 using System.Collections;
 using System;
 
+public enum BlockState { None, New, Moving, Held, Swap, Match }; //None is the default not doing anything state
+public enum BlockColor { None, Red, Yellow, Green, Blue, Purple, Pink };
+public enum BlockSpecial { None };
+
 public class BlockScript : MonoBehaviour {
 
     //Game Object vars
-    public string color;
-    public string special;
-
     public FieldController fieldScript;
     public SpriteRenderer blockRenderer;
     public FXController fxControllerScript;
@@ -15,9 +16,9 @@ public class BlockScript : MonoBehaviour {
     //Internal tags on status
     public int x;
     public int y;
-    public bool isHeld = false;
-    public bool isMoving = false;
-    public bool isMatch = false;
+    public BlockColor color;
+    public BlockSpecial special;
+    public BlockState state;
 
     // Use this for initialization
     void Start() {
@@ -30,17 +31,17 @@ public class BlockScript : MonoBehaviour {
     void Update () {
 
         //Tint blocks below or above the push line
-        if (isMatch != true && y < 0 && blockRenderer != null)
+        if (state != BlockState.Match && y < 0 && blockRenderer != null)
         {
             blockRenderer.material.color = new Color(.5f, .5f, .5f);
         }
-        else if (isMatch != true && y >= 0 && blockRenderer != null)
+        else if (state != BlockState.Match && blockRenderer != null)
         {
             blockRenderer.material.color = new Color(1f, 1f, 1f);
         }
 
         //If held, move it around and check for matches, swaps or a hole
-        if (isHeld == true)
+        if (state == BlockState.Held)
         {
             float xMovement = Input.GetAxis("Mouse X") * 12f * Time.deltaTime;
             int xForPosition = fieldScript.GetBlockXForPosition(transform.position);
@@ -54,11 +55,16 @@ public class BlockScript : MonoBehaviour {
                 {
                     swapBlock = fieldScript.GetBlockForXY(x + 1, y);
 
-                    if (swapBlock == null || swapBlock.isMatch == false)
+                    if ( fieldScript.IsBlockEligibleForSwap(swapBlock) == true)
                     {
                         transform.Translate(xMovement, 0f, 0f);
                         if (xForPosition != x)
                         {
+                            if (swapBlock != null)
+                            {
+                                swapBlock.SwapBlock(x, y);
+                            }
+
                             ChangeBlock(xForPosition, y);
                         }
                     }
@@ -69,13 +75,16 @@ public class BlockScript : MonoBehaviour {
                 if (x > 0)
                 {
                     swapBlock = fieldScript.GetBlockForXY(x - 1, y);
-                    print(swapBlock);
 
-                    if ( swapBlock == null || swapBlock.isMatch == false)
+                    if (fieldScript.IsBlockEligibleForSwap(swapBlock) == true)
                     {
                         transform.Translate(xMovement, 0f, 0f);
                         if (xForPosition != x)
                         {
+                            if (swapBlock != null)
+                            {
+                                swapBlock.SwapBlock(x, y);
+                            }
                             ChangeBlock(xForPosition, y);
                         }
                     }
@@ -89,7 +98,7 @@ public class BlockScript : MonoBehaviour {
         }
 
         //Check for hole, then drop it
-        if (isMatch == false && isMoving == false)
+        if ( state == BlockState.None )
         {
             DropBlock(fieldScript.CheckForHolesAtBlock(this));
         }
@@ -103,10 +112,7 @@ public class BlockScript : MonoBehaviour {
 
     void OnMouseUp()
     {
-        if (isHeld == true)
-        {
-            PutDownBlock();
-        }
+        PutDownBlock();
     }
 
     #endregion
@@ -134,9 +140,9 @@ public class BlockScript : MonoBehaviour {
 
     public void PickUpBlock()
     {
-        if (isMatch == false)
+        if ( state == BlockState.None )
         {
-            isHeld = true;
+            state = BlockState.Held;
             fieldScript.heldBlock = this;
 
             this.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
@@ -146,27 +152,30 @@ public class BlockScript : MonoBehaviour {
 
     public void PutDownBlock()
     {
-        isHeld = false;
-        isMoving = false;
-        fieldScript.heldBlock = null;
+        if (state == BlockState.Held)
+        {
 
-        this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-        blockRenderer.sortingOrder = 0;
+            state = BlockState.None;
+            fieldScript.heldBlock = null;
+
+            this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+            blockRenderer.sortingOrder = 0;
 
 
-        MoveBlock();
-        ChangeBlock(x, y);
-        StopBlock();
+            MoveBlock();
+            ChangeBlock(x, y);
+            StopBlock();
+        }
     }
 
     public void MoveBlock()
     {
-        isMoving = true;
+        state = BlockState.Moving;
     }
 
     public void StopBlock()
     {
-        isMoving = false;
+        state = BlockState.None;
         //CheckForMatches();
     }
     #endregion
@@ -175,85 +184,119 @@ public class BlockScript : MonoBehaviour {
 
     public void PrintBlock(string op, string overload = "")
     {
-        print(op + ": " + this + " (" + x + ", " + y + ")" + " " + overload);
+        print(op + ": " + this + " (" + x + ", " + y + ")" + "State: " + state + " | "
+            + overload);
     }
 
-    public void CheckForSwap(int xSwapFrom, int xSwapTo, int atY)
+    public void SwapBlock(int xSwapTo, int atY)
     {
-        BlockScript swapBlock = fieldScript.GetBlockForXY(xSwapFrom, atY);
-        if (swapBlock != null && swapBlock != this)
-        {
-            swapBlock.ChangeBlock(xSwapTo, y);
-            fxControllerScript.SendMessage("BlockSwap");
-            fieldScript.CheckForMatchesAtBlock(this);
-        }
+        //PrintBlock("Swap", " To: (" + xSwapTo + "," + atY + ")");
 
+        state = BlockState.Swap;
+        ChangeBlock(xSwapTo, y);
+        fxControllerScript.SendMessage("BlockSwap");
     }
 
-    public void ChangeBlock(int newX, int newY, string newColor = "None", string newSpecial = "None")
+    void SetBlockXY (int newX, int newY)
     {
-        //print("ChangeBlock: " + this + " (" + x + "/" + newX  + "," + y + "/" + newY + ") held: " + isHeld + " isMov: " + isMoving);
-
-        if ( isHeld == true ) //Update held blocks
-        {
-            CheckForSwap(newX, x, y);
-        }
-        else if (isMoving == true) //Update held blocks PutDown()
-        {
-            transform.Translate(Vector3.MoveTowards(transform.position, fieldScript.GetBlockPositionForFieldXY(newX, newY), 6f) - transform.position);
-        }
-        else if ( isHeld == false && newSpecial != "New" ) //Move existing blocks
-        {
-            transform.Translate(fieldScript.GetBlockPositionForFieldXY(newX, newY) - fieldScript.GetBlockPositionForFieldXY(x, y));
-            
-            x = newX;
-            y = newY;
-            fieldScript.CheckForMatchesAtBlock(this);
-        }
-
-
-        //Update all the variables
         if (x != newX || y != newY)
         {
             x = newX;
             y = newY;
 
         }
-        if (newColor != "None" && color != newColor)
-        {
-            if (newColor != "New")
-            {
-                color = newColor;
+    }
 
+    void SetBlockColor (BlockColor newColor)
+    {
+        if (newColor != BlockColor.None && color != newColor )
+        {
+            color = newColor;
+
+            if (blockRenderer != null)
+            {
                 switch (newColor)
                 {
-                    case "Red":
+                    case BlockColor.Red:
                         blockRenderer.sprite = Resources.Load("Sprites/Blocks/Red", typeof(Sprite)) as Sprite;
                         break;
-                    case "Yellow":
+                    case BlockColor.Yellow:
                         blockRenderer.sprite = Resources.Load("Sprites/Blocks/Yellow", typeof(Sprite)) as Sprite;
                         break;
-                    case "Green":
+                    case BlockColor.Green:
                         blockRenderer.sprite = Resources.Load("Sprites/Blocks/Green", typeof(Sprite)) as Sprite;
                         break;
-                    case "Blue":
+                    case BlockColor.Blue:
                         blockRenderer.sprite = Resources.Load("Sprites/Blocks/Blue", typeof(Sprite)) as Sprite;
                         break;
-                    case "Purple":
+                    case BlockColor.Purple:
                         blockRenderer.sprite = Resources.Load("Sprites/Blocks/Purple", typeof(Sprite)) as Sprite;
                         break;
-                    case "Pink":
+                    case BlockColor.Pink:
                         blockRenderer.sprite = Resources.Load("Sprites/Blocks/Pink", typeof(Sprite)) as Sprite;
                         break;
                 }
             }
         }
-        if (newSpecial != "None" && special != newSpecial)
+
+    }
+
+    void SetBlockSpecial ( BlockSpecial newSpecial)
+    {
+        if (special != newSpecial)
         {
-            if (newSpecial != "New")
+            special = newSpecial;
+        }
+    }
+
+    public void ChangeBlock(int newX, int newY, BlockColor newColor = BlockColor.None, BlockState newState = BlockState.None, BlockSpecial newSpecial = BlockSpecial.None)
+    {
+        //PrintBlock("ChangeBlock", " (" + x + "/" + newX  + "," + y + "/" + newY + ") State: " + state + "/" + newState);
+
+        if ( state == BlockState.Held ) //Update held blocks
+        {
+            SetBlockXY(newX, newY);
+        }
+        else if ( state == BlockState.Moving ) //Update moving blocks
+        {
+            transform.Translate(Vector3.MoveTowards(transform.position, fieldScript.GetBlockPositionForFieldXY(newX, newY), 6f) - transform.position);
+
+            SetBlockXY(newX, newY);
+        }
+        else if ( state == BlockState.Swap ) //Move swapped blocks, check for matches then set them back
+        {
+            if ( x < fieldScript.maxCol)
             {
-                special = newSpecial;
+                SetBlockXY(newX, y);
             }
+            else
+            {
+                Debug.LogException(new Exception(" (" + x + "/" + newX + "," + y + "/" + newY + ") state: " + state), this);
+            }
+
+            if (y < fieldScript.maxRow)
+            {
+                SetBlockXY(x, newY);
+            }
+            else
+            {
+                Debug.LogException(new Exception(" (" + x + "/" + newX + "," + y + "/" + newY + ") state: " + state), this);
+            }
+
+            transform.Translate(Vector3.MoveTowards(transform.position, fieldScript.GetBlockPositionForFieldXY(newX, newY), 6f) - transform.position);
+
+            fieldScript.CheckForMatchesAtBlock(this);
+
+            state = BlockState.None;
+
+            PrintBlock("ChangeBlock:Swap");
+        }
+        else if (newState == BlockState.New) //set new blocks
+        {
+            SetBlockXY(newX, newY);
+            SetBlockColor(newColor);
+
+            state = BlockState.None;
         }
     }
 
@@ -267,7 +310,7 @@ public class BlockScript : MonoBehaviour {
     {
         if ( fieldScript.CheckForMatchesAtBlock(this, false) == true)
         {
-            ChangeBlock(x, y, fieldScript.RandomBlockColor(),"New");
+            ChangeBlock(x, y, fieldScript.RandomBlockColor(), BlockState.New );
         }
 
         ChangeColorToNoMatches();

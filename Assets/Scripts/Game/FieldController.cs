@@ -84,10 +84,51 @@ public class FieldController : MonoBehaviour {
 
 
     }
+    public Boolean IsBlockEligibleForMatch(BlockScript block)
+    {
+        if (block != null)
+        {
+            if (block.state != BlockState.Moving &&
+                block.state != BlockState.Match &&
+                block.state != BlockState.New &&
+                block.y >= 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public Boolean AreBlocksEligibleForMatch(BlockScript matchBlock, BlockScript potentialMatch)
+    {
+        if (IsBlockEligibleForMatch(matchBlock) == true && IsBlockEligibleForMatch(potentialMatch) == true)
+        {
+            if (matchBlock.color == potentialMatch.color)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public BlockScript GetMatchForBlockAtXY (BlockScript matchBlock, int x, int y)
     {
         BlockScript potentialMatchBlock = GetBlockForXY(x, y);
-        if (potentialMatchBlock != null && potentialMatchBlock.color == matchBlock.color)
+        if ( AreBlocksEligibleForMatch(matchBlock, potentialMatchBlock) == true )
         {
             return potentialMatchBlock;
         }
@@ -99,7 +140,7 @@ public class FieldController : MonoBehaviour {
 
     public bool CheckForMatchesAtBlock (BlockScript matchBlock, bool autoResolve = true)
     {
-        if (matchBlock.isMoving == false && CheckForHolesAtBlock(matchBlock) == 0)
+        if (IsBlockEligibleForMatch(matchBlock) == true && CheckForHolesAtBlock(matchBlock) == 0)
         {
             BlockScript potentialMatchBlock;
             int potentialMatchXi = 0;
@@ -191,7 +232,7 @@ public class FieldController : MonoBehaviour {
                 BlockScript[] fieldMatchesFinal = new BlockScript[12];
                 fieldMatchesFinal[0] = matchBlock;
 
-                if ( matchBlock.isHeld == true)
+                if ( matchBlock.state == BlockState.Held)
                 {
                     matchBlock.PutDownBlock();
                 }
@@ -220,7 +261,7 @@ public class FieldController : MonoBehaviour {
     {
         int holeDepth = checkBlock.y;
 
-        if (checkBlock.y > 0 && checkBlock.isMoving == false)
+        if (checkBlock.y > 0 && checkBlock.state != BlockState.Moving)
         {
             foreach (BlockScript block in fieldBlocks)
             {
@@ -239,6 +280,32 @@ public class FieldController : MonoBehaviour {
         }
 
         return 0;
+    }
+
+    public Boolean IsBlockEligibleForSwap(BlockScript block)
+    {
+        if (block == null || IsBlockEligibleForMatch(block) == true )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public Boolean IsXYEligibleForSwap(int x, int y)
+    {
+        BlockScript block = GetBlockForXY(x, y);
+
+        if (block == null || IsBlockEligibleForMatch(block) == true)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public BlockScript GetBlockForXY (int x, int y)
@@ -330,71 +397,67 @@ public class FieldController : MonoBehaviour {
         }
     }
 
-    void CreateBlock (GameObject blockPrefab, int newX, int newY, string newSpecial = "None")
+    void CreateBlock (GameObject blockPrefab, int newX, int newY, BlockState newState = BlockState.New, BlockSpecial newSpecial = BlockSpecial.None)
     {
         GameObject block = Instantiate(blockPrefab, GetBlockPositionForFieldXY(newX, newY), Quaternion.identity) as GameObject;
         block.transform.parent = this.transform;
 
         BlockScript blockScript = block.GetComponent<MonoBehaviour>() as BlockScript;
-        blockScript.ChangeBlock(newX, newY, "New", "New");
+        blockScript.ChangeBlock(newX, newY, BlockColor.None, newState, newSpecial);
 
         AddBlockToFieldBlocks(blockScript);
         blockScript.fieldScript = this;
-        //print("New Block: " + fieldBlocks[newX, newY] + ", " + blockScript.x + ", " + blockScript.y);
 
-        if ( newSpecial == "Starting")
-        {
-            //blockScript.ChangeColorToNoMatches();
-        }
+        //print("New Block: " + blockScript + ", " + blockScript.x + ", " + blockScript.y + " State: " + blockScript.state);
     }
 
     void CreateRandomColorOfBlock (int newX, int newY, string newSpecial = "None") //Decide a random block then call CreateBlock()
     {
-        string random = RandomBlockColor();
+        BlockColor random = RandomBlockColor();
 
         switch (random)
         {
-            case "Red":
-                CreateBlock(redBlockPrefab, newX, newY, "Starting");
+            case BlockColor.Red:
+                CreateBlock(redBlockPrefab, newX, newY);
                 break;
-            case "Yellow":
-                CreateBlock(yellowBlockPrefab, newX, newY, "Starting");
+            case BlockColor.Yellow:
+                CreateBlock(yellowBlockPrefab, newX, newY);
                 break;
-            case "Green":
-                CreateBlock(greenBlockPrefab, newX, newY, "Starting");
+            case BlockColor.Green:
+                CreateBlock(greenBlockPrefab, newX, newY);
                 break;
-            case "Blue":
-                CreateBlock(blueBlockPrefab, newX, newY, "Starting");
+            case BlockColor.Blue:
+                CreateBlock(blueBlockPrefab, newX, newY);
                 break;
-            case "Purple":
-                CreateBlock(purpleBlockPrefab, newX, newY, "Starting");
+            case BlockColor.Purple:
+                CreateBlock(purpleBlockPrefab, newX, newY);
                 break;
-            case "Pink":
-                CreateBlock(pinkBlockPrefab, newX, newY, "Starting");
+            case BlockColor.Pink:
+                CreateBlock(pinkBlockPrefab, newX, newY);
                 break;
         }
     }
 
-    public string RandomBlockColor(int maxColors = 7)
+    public BlockColor RandomBlockColor(int maxColors = 7)
     {
         int random = UnityEngine.Random.Range(1, maxColors); //never returns max unless its == to min
 
         switch (random)
         {
             case 1:
-                return "Red";
+                return BlockColor.Red;
             case 2:
-                return "Yellow";
+                return BlockColor.Yellow;
             case 3:
-                return "Green";
+                return BlockColor.Green;
             case 4:
-                return "Blue";
+                return BlockColor.Blue;
             case 5:
-                return "Purple";
+                return BlockColor.Purple;
             case 6:
-                return "Pink";
+                return BlockColor.Pink;
         }
-        return null;
+        return BlockColor.None;
     }
 
     public void PrintAllBlocks()
@@ -474,7 +537,6 @@ public class FieldController : MonoBehaviour {
         }
     }
 
-
     void MatchBlocks(BlockScript[] fieldMatches, int matchSize)
     {
         float delay = .25f;
@@ -494,10 +556,11 @@ public class FieldController : MonoBehaviour {
     {
         if (block != null)
         {
-            print(block + " " + block.x + ", " + block.y);
-            block.isMatch = true;
+            //print("     " + block + " " + block.x + ", " + block.y);
+            block.state = BlockState.Match;
             fxControllerScript.Invoke("BlockMatch", delay);
             block.Invoke("MatchBlockResolve", gameControllerScript.matchDelay);
+
             block.blockRenderer.material.color = new Color(.75f, .75f, .75f, .5f);
         }
     }
