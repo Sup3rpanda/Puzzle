@@ -13,7 +13,7 @@ public class GameController : MonoBehaviour {
     public GameObject player;
     public GameObject fieldController;
     public GameObject fxController;
-    public Text timeUI, scoreUI, hiScoreUI, roundUI, speedUI, difficultyUI, stopUI, stopValueUI, readyUI;
+    public Text timeUI, scoreUI, hiScoreUI, roundUI, speedUI, difficultyUI, stopUI, stopValueUI, readyUI, winLoseUI;
 
     FieldController fieldScript;
     FXController fxControllerScript;
@@ -178,6 +178,7 @@ public class GameController : MonoBehaviour {
     void StateStartLost()
     {
         fxController.SendMessage("Lose");
+        winLoseUI.enabled = true;
         gameState = GameState.Lost;
     }
 
