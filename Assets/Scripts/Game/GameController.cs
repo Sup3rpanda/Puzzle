@@ -14,6 +14,7 @@ public class GameController : MonoBehaviour {
     public GameObject fieldController;
     public GameObject fxController;
     public Text timeUI, scoreUI, hiScoreUI, roundUI, speedUI, difficultyUI, stopUI, stopValueUI, readyUI, winLoseUI;
+    public GameObject loadingScreen;
 
     FieldController fieldScript;
     FXController fxControllerScript;
@@ -62,6 +63,7 @@ public class GameController : MonoBehaviour {
         fieldScript.gameControllerScript = this;
         nextPushTime = timeToPush;
         fxControllerScript = GameObject.FindGameObjectWithTag("FX").GetComponent<MonoBehaviour>() as FXController;
+        loadingScreen = GameObject.FindGameObjectWithTag("LoadingScreen");
 
         //Initialize Mode specific stuff
         if ( gameType == GameType.Endless)
@@ -73,6 +75,7 @@ public class GameController : MonoBehaviour {
             scoreUI.enabled = false;
             hiScoreUI.enabled = false;
         }
+
     }
 
     // Update is called once per frame
@@ -159,6 +162,7 @@ public class GameController : MonoBehaviour {
 
     void StateStartCountdown()
     {
+        loadingScreen.SetActive(false);
         readyUI.enabled = true;
         gameState = GameState.Countdown;
     }
