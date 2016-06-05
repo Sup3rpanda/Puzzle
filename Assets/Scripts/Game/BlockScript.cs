@@ -187,7 +187,7 @@ public class BlockScript : MonoBehaviour {
 
     public void PrintBlock(string op, string overload = "")
     {
-        print(op + ": " + this + " (" + x + ", " + y + ")" + "State: " + state + " | "
+        print(op + ": " + this + " (" + x + ", " + y + ")" + " State: " + state + " | "
             + overload);
     }
 

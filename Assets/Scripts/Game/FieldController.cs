@@ -58,7 +58,7 @@ public class FieldController : MonoBehaviour {
             {
                 if (block != null && block.y >= maxRow - 1)
                 {
-                    print(block + ", " + block.x + ", " + block.y);
+                    block.PrintBlock("Losing");
                     gameControllerScript.StartLose();
                     break;
                 }

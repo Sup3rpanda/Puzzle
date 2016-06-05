@@ -13,7 +13,7 @@ public class GameController : MonoBehaviour {
     public GameObject player;
     public GameObject fieldController;
     public GameObject fxController;
-    public Text timeUI, scoreUI, hiScoreUI, roundUI, speedUI, difficultyUI, stopUI, stopValueUI, readyUI, winLoseUI;
+    public Text timeUI, scoreUI, hiScoreUI, roundUI, speedValueUI, difficultyUI, difficultyValueUI, stopUI, stopValueUI, readyUI, winLoseUI;
     public GameObject loadingScreen;
 
     FieldController fieldScript;
@@ -23,7 +23,16 @@ public class GameController : MonoBehaviour {
     public GameType gameType = GameType.Endless;
     public GameMode gameMode = GameMode.Classic;
     public GameState gameState = GameState.Loading;
-    int score = 0;
+
+    #region General Gameplay Vars
+    public float matchDelay = 1f;
+    float elapsedTime = 0f;         //Total time game is in Playing mode
+    int score = 0;                  //Score of matched blocks
+    int speed = 1;                  //Current speed level
+    int speedMax = 10;              //Maximum speed level
+    float nextSpeedIncreaseTime;    //The elapsed time when a speed increase will happen
+    float speedIncreaseInterval = 3f; //How long in between speed increases
+    #endregion
     #region Vs Vars
     int difficulty = 1;
     int roundsBestOf = 3;
@@ -34,15 +43,11 @@ public class GameController : MonoBehaviour {
     float countdownDelay = 1f;
     float countdownElapsed = 0f;
     #endregion
-    //Game Setting vars
-    public float matchDelay = 1f;
-    public float comboGrace = .75f;
-    float elapsedTime = 0f;
     #region Push Vars
-    float nextPushTime;
-    public float timeToPush = 5f;
-    public float pushCooldown = .5f;
-    float pushCooldownTime;
+    float nextPushTime;         //The elapsed time when push will trigger again
+    float pushInterval = 10f;    //How long between pushes
+    float pushCooldown = .5f;   //How long after a manual push another can happen
+    float pushCooldownTime;     //Brief time where push cant happen too quickly in succession
     #endregion
     #region Stop Vars
     float stop = 0f;
@@ -61,7 +66,8 @@ public class GameController : MonoBehaviour {
         //Initialize basic stuff
         fieldScript = GameObject.FindGameObjectWithTag("Field").GetComponent<MonoBehaviour>() as FieldController;
         fieldScript.gameControllerScript = this;
-        nextPushTime = timeToPush;
+        nextSpeedIncreaseTime = speedIncreaseInterval;
+        nextPushTime = pushInterval;
         fxControllerScript = GameObject.FindGameObjectWithTag("FX").GetComponent<MonoBehaviour>() as FXController;
         loadingScreen = GameObject.FindGameObjectWithTag("LoadingScreen");
 
@@ -69,6 +75,8 @@ public class GameController : MonoBehaviour {
         if ( gameType == GameType.Endless)
         {
             roundUI.enabled = false;
+            difficultyUI.enabled = false;
+            difficultyValueUI.enabled = false;
         }
         else if ( gameType == GameType.Arcade)
         {
@@ -85,6 +93,12 @@ public class GameController : MonoBehaviour {
         {
             elapsedTime += Time.deltaTime;
             timeUI.text = elapsedTime.ToString();
+
+            //Speed timing
+            if ( elapsedTime > nextSpeedIncreaseTime )
+            {
+                SpeedIncrease();
+            }
 
             //Stop timing
             if (stop > 0)
@@ -162,7 +176,10 @@ public class GameController : MonoBehaviour {
 
     void StateStartCountdown()
     {
-        loadingScreen.SetActive(false);
+        if (loadingScreen != null)
+        {
+            loadingScreen.SetActive(false);
+        }
         readyUI.enabled = true;
         gameState = GameState.Countdown;
     }
@@ -193,6 +210,21 @@ public class GameController : MonoBehaviour {
     }
     #endregion
 
+    public void SpeedIncrease()
+    {
+        if ( speed < speedMax)
+        {
+            speed++;
+            speedValueUI.text = speed.ToString();
+        }
+        SpeedTimeReset();
+    }
+
+    void SpeedTimeReset()
+    {
+        nextSpeedIncreaseTime = elapsedTime + speedIncreaseInterval;
+    }
+
     public void PushManual()
     {
         if ( pushCooldownTime < elapsedTime )
@@ -202,7 +234,7 @@ public class GameController : MonoBehaviour {
         }
     }
 
-    public void Push()
+    void Push()
     {
         fieldScript.Push(this);
         PushTimeReset();
@@ -210,7 +242,7 @@ public class GameController : MonoBehaviour {
 
     public void PushTimeReset()
     {
-        nextPushTime = elapsedTime + timeToPush;
+        nextPushTime = elapsedTime + (1 + pushInterval - speed);
         StopTimeReset();
     }
 
@@ -226,9 +258,8 @@ public class GameController : MonoBehaviour {
     {
         loseTime = elapsedTime + timeToLose;
         isLosingPlayer = true;
-        fxController.SendMessage("Losing");
-        //print("START LOSE: Elapsed: " + elapsedTime + "     Lose Time: " + loseTime);
-
+        fxControllerScript.SendMessage("Losing");
+        print("START LOSE: Elapsed: " + elapsedTime + "     Lose Time: " + loseTime);
     }
 
     public void StopLose()
@@ -236,6 +267,31 @@ public class GameController : MonoBehaviour {
         loseTime = 0f;
         isLosingPlayer = false;
         //print("STOP LOSE: Elapsed: " + elapsedTime + "     Lose Time: " + loseTime);
+    }
+
+    void Stop(int matchSize = 0, int comboSize = 0, float timeStopOverride = 0)
+    {
+        if (timeStopOverride == 0)
+        {
+            float stopBonusTime = Mathf.RoundToInt(Mathf.Pow(2, matchSize)) * 0.03f;
+            stop += stopBonusTime;
+
+            if (stop > stopMax)
+            {
+                stop = stopMax;
+            }
+
+            nextPushTime += stopBonusTime;
+            timeToLose += stopBonusTime;
+            stopValueUI.text = stop.ToString();
+
+            stopUI.enabled = true;
+            stopValueUI.enabled = true;
+        }
+        else if (timeStopOverride > 0)
+        {
+            stop += timeStopOverride;
+        }
     }
 
     public void MatchScore(int matchSize, int comboSize = 0)
@@ -257,28 +313,4 @@ public class GameController : MonoBehaviour {
         Stop(matchSize, comboSize);
     }
 
-    public void Stop(int matchSize = 0, int comboSize = 0, float timeStopOverride = 0)
-    {
-        if (timeStopOverride == 0)
-        {
-            float stopBonusTime = Mathf.RoundToInt(Mathf.Pow(2, matchSize)) * 0.03f;
-            stop += stopBonusTime;
-
-            if ( stop > stopMax)
-            {
-                stop = stopMax;
-            }
-
-            nextPushTime += stopBonusTime;
-            timeToLose += stopBonusTime;
-            stopValueUI.text = stop.ToString();
-
-            stopUI.enabled = true;
-            stopValueUI.enabled = true;
-        }
-        else if (timeStopOverride > 0)
-        {
-            stop += timeStopOverride;
-        }
-    }
 }
