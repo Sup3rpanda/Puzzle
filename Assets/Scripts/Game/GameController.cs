@@ -198,7 +198,7 @@ public class GameController : MonoBehaviour {
 
     void StateStartLost()
     {
-        fxController.SendMessage("Lose");
+        fxControllerScript.SendMessage("Lose");
         winLoseUI.enabled = true;
         gameState = GameState.Lost;
     }
@@ -259,7 +259,7 @@ public class GameController : MonoBehaviour {
         loseTime = elapsedTime + timeToLose;
         isLosingPlayer = true;
         fxControllerScript.SendMessage("Losing");
-        print("START LOSE: Elapsed: " + elapsedTime + "     Lose Time: " + loseTime);
+        //print("START LOSE: Elapsed: " + elapsedTime + "     Lose Time: " + loseTime);
     }
 
     public void StopLose()
