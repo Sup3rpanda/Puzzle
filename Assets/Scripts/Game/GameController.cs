@@ -13,7 +13,7 @@ public class GameController : MonoBehaviour {
     public GameObject player;
     public GameObject fieldController;
     public GameObject fxController;
-    public Text timeUI, scoreUI, hiScoreUI, roundUI, speedUI, difficultyUI, stopUI, readyUI;
+    public Text timeUI, scoreUI, hiScoreUI, roundUI, speedUI, difficultyUI, stopUI, stopValueUI, readyUI;
 
     FieldController fieldScript;
     FXController fxControllerScript;
@@ -57,11 +57,22 @@ public class GameController : MonoBehaviour {
     // Use this for initialization
     void Start () {
 
+        //Initialize basic stuff
         fieldScript = GameObject.FindGameObjectWithTag("Field").GetComponent<MonoBehaviour>() as FieldController;
         fieldScript.gameControllerScript = this;
         nextPushTime = timeToPush;
-
         fxControllerScript = GameObject.FindGameObjectWithTag("FX").GetComponent<MonoBehaviour>() as FXController;
+
+        //Initialize Mode specific stuff
+        if ( gameType == GameType.Endless)
+        {
+            roundUI.enabled = false;
+        }
+        else if ( gameType == GameType.Arcade)
+        {
+            scoreUI.enabled = false;
+            hiScoreUI.enabled = false;
+        }
     }
 
     // Update is called once per frame
@@ -76,12 +87,11 @@ public class GameController : MonoBehaviour {
             if (stop > 0)
             {
                 stop -= Time.deltaTime;
-                stopUI.text = stop.ToString();
+                stopValueUI.text = stop.ToString();
             }
             else
             {
-                stop = 0f;
-                stopUI.text = stop.ToString();
+                StopTimeReset();
 
                 //Push timing
                 if (elapsedTime > nextPushTime)
@@ -201,7 +211,10 @@ public class GameController : MonoBehaviour {
 
     public void StopTimeReset()
     {
-        stop = 0;
+        stop = 0f;
+        stopValueUI.text = stop.ToString();
+        stopUI.enabled = false;
+        stopValueUI.enabled = false;
     }
 
     public void StartLose()
@@ -253,7 +266,10 @@ public class GameController : MonoBehaviour {
 
             nextPushTime += stopBonusTime;
             timeToLose += stopBonusTime;
-            stopUI.text = stop.ToString();
+            stopValueUI.text = stop.ToString();
+
+            stopUI.enabled = true;
+            stopValueUI.enabled = true;
         }
         else if (timeStopOverride > 0)
         {
