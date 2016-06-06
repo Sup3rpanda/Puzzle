@@ -36,7 +36,7 @@ public class BlockScript : MonoBehaviour {
         {
             blockRenderer.material.color = new Color(.5f, .5f, .5f);
         }
-        else if (state != BlockState.Match && state != BlockState.Held && blockRenderer != null)
+        else if (state != BlockState.Match && state != BlockState.Moving && blockRenderer != null)
         {
             blockRenderer.material.color = new Color(1f, 1f, 1f);
         }
