@@ -10,6 +10,7 @@ public class FXController : MonoBehaviour {
     public AudioClip aLose;
     public AudioClip aWon;
     public AudioClip aBlockSwap;
+    public AudioClip aBlockDrop;
     public AudioClip aCombo;
     public AudioClip aMatch;
     public AudioClip aBlockMatch;
@@ -49,6 +50,11 @@ public class FXController : MonoBehaviour {
     void BlockSwap()
     {
         audioSource.PlayOneShot(aBlockSwap);
+    }
+
+    void BlockDrop()
+    {
+        audioSource.PlayOneShot(aBlockDrop);
     }
 
     void Combo()

@@ -130,20 +130,22 @@ public class BlockScript : MonoBehaviour {
 
             PutDownBlock();
             MoveBlock();
-            Invoke("DropBlockResolve", .1f);
+            Invoke("DropBlockResolve", .15f);
         }
     }
 
     public void DropBlockResolve()
     {
         ChangeBlock(x, y - 1);
-        if (fieldScript.CheckForHolesAtBlock(this) == 0)
+        int holes = fieldScript.CheckForHolesAtBlock(this);
+        if ( holes == 0)
         {
+            fxControllerScript.SendMessage("BlockDrop");
             fieldScript.CheckForMatchesAtBlock(this);
         }
         else
         {
-            DropBlock(fieldScript.CheckForHolesAtBlock(this));
+            DropBlock(holes);
         }
     }
 
