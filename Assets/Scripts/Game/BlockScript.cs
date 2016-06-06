@@ -268,6 +268,12 @@ public class BlockScript : MonoBehaviour {
             SetBlockXY(newX, newY);
             StopBlock();
         }
+        else if ( state == BlockState.Match)
+        {
+            transform.Translate(Vector3.MoveTowards(transform.position, fieldScript.GetBlockPositionForFieldXY(newX, newY), 6f) - transform.position);
+
+            SetBlockXY(newX, newY);
+        }
         else if ( state == BlockState.Swap ) //Move swapped blocks, check for matches then set them back
         {
             if ( x < fieldScript.maxCol)

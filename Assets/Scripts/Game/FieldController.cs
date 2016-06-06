@@ -504,10 +504,13 @@ public class FieldController : MonoBehaviour {
             //This is probably annoying, but it will at least correct make sur eit doesnt mess things up further
             heldBlock.PutDownBlock();
         }
-        
+
         foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
         {
-            kvp.Value.MoveBlock();
+            if (kvp.Value.state != BlockState.Match)
+            {
+                kvp.Value.MoveBlock();
+            }
             kvp.Value.ChangeBlock(kvp.Value.x, kvp.Value.y + 1);
         }
         foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
