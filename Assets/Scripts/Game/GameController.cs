@@ -31,7 +31,7 @@ public class GameController : MonoBehaviour {
     int speed = 1;                  //Current speed level
     int speedMax = 10;              //Maximum speed level
     float nextSpeedIncreaseTime;    //The elapsed time when a speed increase will happen
-    float speedIncreaseInterval = 3f; //How long in between speed increases
+    float speedIncreaseInterval = 30f; //How long in between speed increases
     #endregion
     #region Vs Vars
     int difficulty = 1;
