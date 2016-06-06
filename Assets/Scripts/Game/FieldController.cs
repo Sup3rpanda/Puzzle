@@ -261,7 +261,10 @@ public class FieldController : MonoBehaviour {
     {
         int holeDepth = checkBlock.y;
 
-        if (checkBlock.y > 0 && checkBlock.state != BlockState.Moving)
+        if (checkBlock.y > 0 && 
+            checkBlock.state != BlockState.Moving && 
+            checkBlock.state != BlockState.Match &&
+            checkBlock.state != BlockState.New)
         {
             foreach (BlockScript block in fieldBlocks)
             {
@@ -276,7 +279,6 @@ public class FieldController : MonoBehaviour {
             }
 
             return holeDepth;
-
         }
 
         return 0;
@@ -477,11 +479,13 @@ public class FieldController : MonoBehaviour {
     public void Push(GameController script)
     {
         script.PushTimeReset();
+        print("PUSH!");
 
         if(heldBlock != null)
         {
             //This is probably annoying, but it will at least correct make sur eit doesnt mess things up further
             heldBlock.PutDownBlock();
+            heldBlock.MoveBlock();
         }
 
         foreach (BlockScript block in fieldBlocks)
@@ -490,9 +494,10 @@ public class FieldController : MonoBehaviour {
             {
                 block.MoveBlock();
                 block.ChangeBlock(block.x, block.y + 1);
-                block.StopBlock();
+                //block.StopBlock();
             }
         }
+
         CreateBlocksAtY(-1);
     }
 

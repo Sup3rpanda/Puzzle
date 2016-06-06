@@ -126,7 +126,7 @@ public class BlockScript : MonoBehaviour {
     {
         if (holeDepth > 0)
         {
-            //PrintBlock("Drop");
+            //PrintBlock("Drop", holeDepth + " ---------------------------");
 
             PutDownBlock();
             MoveBlock();
@@ -137,8 +137,15 @@ public class BlockScript : MonoBehaviour {
     public void DropBlockResolve()
     {
         ChangeBlock(x, y - 1);
-        StopBlock();
-        fieldScript.CheckForMatchesAtBlock(this);
+        if (fieldScript.CheckForHolesAtBlock(this) == 0)
+        {
+            StopBlock();
+            fieldScript.CheckForMatchesAtBlock(this);
+        }
+        else
+        {
+            DropBlock(fieldScript.CheckForHolesAtBlock(this));
+        }
     }
 
     public void PickUpBlock()
@@ -157,13 +164,9 @@ public class BlockScript : MonoBehaviour {
     {
         if (state == BlockState.Held)
         {
-
-            state = BlockState.None;
             fieldScript.heldBlock = null;
-
             this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
             blockRenderer.sortingOrder = 0;
-
 
             MoveBlock();
             ChangeBlock(x, y);
@@ -259,12 +262,14 @@ public class BlockScript : MonoBehaviour {
         if ( state == BlockState.Held ) //Update held blocks
         {
             SetBlockXY(newX, newY);
+            //Dont change state
         }
         else if ( state == BlockState.Moving ) //Update moving blocks
         {
             transform.Translate(Vector3.MoveTowards(transform.position, fieldScript.GetBlockPositionForFieldXY(newX, newY), 6f) - transform.position);
 
             SetBlockXY(newX, newY);
+            state = BlockState.None;
         }
         else if ( state == BlockState.Swap ) //Move swapped blocks, check for matches then set them back
         {
@@ -287,12 +292,10 @@ public class BlockScript : MonoBehaviour {
             }
 
             transform.Translate(Vector3.MoveTowards(transform.position, fieldScript.GetBlockPositionForFieldXY(newX, newY), 6f) - transform.position);
-
             fieldScript.CheckForMatchesAtBlock(this);
-
             state = BlockState.None;
 
-            PrintBlock("ChangeBlock:Swap");
+            //PrintBlock("ChangeBlock:Swap");
         }
         else if (newState == BlockState.New) //set new blocks
         {
