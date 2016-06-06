@@ -146,8 +146,8 @@ public class FieldController : MonoBehaviour {
             BlockScript potentialMatchBlock;
             int potentialMatchXi = 0;
             int potentialMatchYi = 0;
-            BlockScript[] fieldMatchesX = new BlockScript[6];
-            BlockScript[] fieldMatchesY = new BlockScript[6];
+            BlockScript[] fieldMatchesX = new BlockScript[12];
+            BlockScript[] fieldMatchesY = new BlockScript[12];
 
             //matchBlock.PrintBlock("CheckforMatchesAtBlock", "------------------------------------------------------------------------");
 
@@ -164,6 +164,14 @@ public class FieldController : MonoBehaviour {
                 {
                     fieldMatchesX[potentialMatchXi] = potentialMatchBlock;
                     potentialMatchXi++;
+
+                    //Check X+3
+                    potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x + 3, matchBlock.y);
+                    if (potentialMatchBlock != null)
+                    {
+                        fieldMatchesX[potentialMatchXi] = potentialMatchBlock;
+                        potentialMatchXi++;
+                    }
                 }
             }
 
@@ -174,12 +182,20 @@ public class FieldController : MonoBehaviour {
                 fieldMatchesX[potentialMatchXi] = potentialMatchBlock;
                 potentialMatchXi++;
 
-                //Check X+2
+                //Check X-2
                 potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x - 2, matchBlock.y);
                 if (potentialMatchBlock != null)
                 {
                     fieldMatchesX[potentialMatchXi] = potentialMatchBlock;
                     potentialMatchXi++;
+
+                    //Check X-3
+                    potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x - 3, matchBlock.y);
+                    if (potentialMatchBlock != null)
+                    {
+                        fieldMatchesX[potentialMatchXi] = potentialMatchBlock;
+                        potentialMatchXi++;
+                    }
                 }
             }
 
@@ -196,6 +212,14 @@ public class FieldController : MonoBehaviour {
                 {
                     fieldMatchesY[potentialMatchYi] = potentialMatchBlock;
                     potentialMatchYi++;
+
+                    //Check Y+3
+                    potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x, matchBlock.y + 3);
+                    if (potentialMatchBlock != null)
+                    {
+                        fieldMatchesY[potentialMatchYi] = potentialMatchBlock;
+                        potentialMatchYi++;
+                    }
                 }
             }
 
@@ -216,6 +240,14 @@ public class FieldController : MonoBehaviour {
                         {
                             fieldMatchesY[potentialMatchYi] = potentialMatchBlock;
                             potentialMatchYi++;
+
+                            //Check y-3
+                            potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x, matchBlock.y - 3);
+                            if (potentialMatchBlock != null)
+                            {
+                                fieldMatchesY[potentialMatchYi] = potentialMatchBlock;
+                                potentialMatchYi++;
+                            }
                         }
                     }
                 }
@@ -230,7 +262,7 @@ public class FieldController : MonoBehaviour {
             if (potentialMatchXi >= 2 || potentialMatchYi >= 2)
             {
                 int matchSize = 1;
-                BlockScript[] fieldMatchesFinal = new BlockScript[12];
+                BlockScript[] fieldMatchesFinal = new BlockScript[24];
                 fieldMatchesFinal[0] = matchBlock;
 
                 if ( matchBlock.state == BlockState.Held)
