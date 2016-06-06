@@ -476,10 +476,14 @@ public class FieldController : MonoBehaviour {
         foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
         {
             kvp.Value.MoveBlock();
+            kvp.Value.ChangeBlock(kvp.Value.x, kvp.Value.y + 1);
         }
         foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
         {
-            kvp.Value.ChangeBlock(kvp.Value.x, kvp.Value.y + 1);
+            if ( kvp.Value.y == 0)
+            {
+                CheckForMatchesAtBlock(kvp.Value);
+            }
         }
 
         CreateBlocksAtY(-1);
