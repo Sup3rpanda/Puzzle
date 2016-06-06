@@ -5,17 +5,6 @@ public class FXController : MonoBehaviour {
 
     //Game Object vars
     AudioSource audioSource;
-    public AudioClip aStartGame;
-    public AudioClip aLosing;
-    public AudioClip aLose;
-    public AudioClip aWon;
-    public AudioClip aBlockSwap;
-    public AudioClip aBlockDrop;
-    public AudioClip aCombo;
-    public AudioClip aMatch;
-    public AudioClip aBlockMatch;
-    public AudioClip aPush;
-
 
     // Use this for initialization
     void Start () {
@@ -26,6 +15,13 @@ public class FXController : MonoBehaviour {
 	void Update () {
 	
 	}
+
+    #region Game States and Actions
+    public AudioClip aStartGame;
+    public AudioClip aLosing;
+    public AudioClip aLose;
+    public AudioClip aWon;
+    public AudioClip aPush;
 
     void StartGame()
     {
@@ -46,6 +42,19 @@ public class FXController : MonoBehaviour {
     {
         audioSource.PlayOneShot(aWon);
     }
+
+    void Push()
+    {
+        audioSource.PlayOneShot(aPush);
+    }
+    #endregion
+
+    #region Blocks and Matching
+    public AudioClip aBlockSwap;
+    public AudioClip aBlockDrop;
+    public AudioClip aCombo;
+    public AudioClip aMatch;
+    public AudioClip aBlockMatch;
 
     void BlockSwap()
     {
@@ -71,9 +80,6 @@ public class FXController : MonoBehaviour {
     {
         audioSource.PlayOneShot(aBlockMatch);
     }
+    #endregion
 
-    void Push()
-    {
-        audioSource.PlayOneShot(aPush);
-    }
 }
