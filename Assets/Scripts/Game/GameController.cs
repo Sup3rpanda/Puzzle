@@ -238,6 +238,7 @@ public class GameController : MonoBehaviour {
     {
         fieldScript.Push(this);
         PushTimeReset();
+        fxControllerScript.SendMessage("Push");
     }
 
     public void PushTimeReset()

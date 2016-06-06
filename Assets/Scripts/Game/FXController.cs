@@ -13,6 +13,7 @@ public class FXController : MonoBehaviour {
     public AudioClip aCombo;
     public AudioClip aMatch;
     public AudioClip aBlockMatch;
+    public AudioClip aPush;
 
 
     // Use this for initialization
@@ -63,6 +64,10 @@ public class FXController : MonoBehaviour {
     void BlockMatch()
     {
         audioSource.PlayOneShot(aBlockMatch);
-        
+    }
+
+    void Push()
+    {
+        audioSource.PlayOneShot(aPush);
     }
 }
