@@ -201,7 +201,6 @@ public class BlockScript : MonoBehaviour {
 
         state = BlockState.Swap;
         ChangeBlock(xSwapTo, y);
-        fxControllerScript.SendMessage("BlockSwap");
     }
 
     void SetBlockXY (int newX, int newY)
@@ -263,6 +262,7 @@ public class BlockScript : MonoBehaviour {
         if ( state == BlockState.Held ) //Update held blocks
         {
             SetBlockXY(newX, newY);
+            fxControllerScript.SendMessage("BlockSwap");
             //Dont change state
         }
         else if ( state == BlockState.Moving ) //Update moving blocks
