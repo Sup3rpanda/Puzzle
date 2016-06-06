@@ -46,7 +46,7 @@ public class GameController : MonoBehaviour {
     #region Push Vars
     float nextPushTime;         //The elapsed time when push will trigger again
     float pushInterval = 10f;    //How long between pushes
-    float pushCooldown = .5f;   //How long after a manual push another can happen
+    float pushCooldown = .3f;   //How long after a manual push another can happen
     float pushCooldownTime;     //Brief time where push cant happen too quickly in succession
     #endregion
     #region Stop Vars
