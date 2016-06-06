@@ -473,7 +473,6 @@ public class FieldController : MonoBehaviour {
         {
             //This is probably annoying, but it will at least correct make sur eit doesnt mess things up further
             heldBlock.PutDownBlock();
-            heldBlock.MoveBlock();
         }
 
         foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
