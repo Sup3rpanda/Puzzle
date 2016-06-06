@@ -452,14 +452,12 @@ public class FieldController : MonoBehaviour {
 
     public void PrintAllBlocks()
     {
-        int i = 0;
         print("Printing all blocks: " + fieldBlocks.Count + " -----------------------------------------------------");
         foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
         {
             if (kvp.Value != null)
             {
-                kvp.Value.PrintBlock("PrintAllBlocks", i.ToString());
-                i++;
+                kvp.Value.PrintBlock("     PrintAllBlocks", kvp.Key.ToString());
             }
         }
     }
@@ -474,15 +472,14 @@ public class FieldController : MonoBehaviour {
             //This is probably annoying, but it will at least correct make sur eit doesnt mess things up further
             heldBlock.PutDownBlock();
         }
-
+        
         foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
         {
-            if (kvp.Value != null)
-            {
-                kvp.Value.MoveBlock();
-                kvp.Value.ChangeBlock(kvp.Value.x, kvp.Value.y + 1);
-                //block.StopBlock();
-            }
+            kvp.Value.MoveBlock();
+        }
+        foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
+        {
+            kvp.Value.ChangeBlock(kvp.Value.x, kvp.Value.y + 1);
         }
 
         CreateBlocksAtY(-1);

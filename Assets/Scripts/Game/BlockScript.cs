@@ -24,7 +24,7 @@ public class BlockScript : MonoBehaviour {
     // Use this for initialization
     void Start() {
 
-        fxControllerScript = GameObject.FindGameObjectWithTag("FX").GetComponent<MonoBehaviour>() as FXController;
+        fxControllerScript = fieldScript.fxControllerScript;
         blockRenderer = this.GetComponentInParent<SpriteRenderer>();
     }
 
@@ -32,15 +32,15 @@ public class BlockScript : MonoBehaviour {
     void Update () {
 
         //Tint blocks below or above the push line
-        if (state != BlockState.Match && y < 0 && blockRenderer != null)
+        if (y < 0 && blockRenderer != null)
         {
             blockRenderer.material.color = new Color(.5f, .5f, .5f);
         }
-        else if (state != BlockState.Match && blockRenderer != null)
+        else if (state != BlockState.Match && state != BlockState.Held && blockRenderer != null)
         {
             blockRenderer.material.color = new Color(1f, 1f, 1f);
         }
-
+        
         //If held, move it around and check for matches, swaps or a hole
         if (state == BlockState.Held)
         {
@@ -93,7 +93,6 @@ public class BlockScript : MonoBehaviour {
             }
 
             DropBlock(fieldScript.CheckForHolesAtBlock(this));
-
             fieldScript.CheckForMatchesAtBlock(this, true);
 
         }
@@ -127,11 +126,11 @@ public class BlockScript : MonoBehaviour {
     {
         if (holeDepth > 0)
         {
-            //PrintBlock("Drop", holeDepth + " ---------------------------");
+            PrintBlock("Drop", holeDepth.ToString());
 
             PutDownBlock();
             MoveBlock();
-            Invoke("DropBlockResolve", .075f);
+            Invoke("DropBlockResolve", .1f);
         }
     }
 
@@ -140,7 +139,6 @@ public class BlockScript : MonoBehaviour {
         ChangeBlock(x, y - 1);
         if (fieldScript.CheckForHolesAtBlock(this) == 0)
         {
-            StopBlock();
             fieldScript.CheckForMatchesAtBlock(this);
         }
         else
@@ -171,7 +169,6 @@ public class BlockScript : MonoBehaviour {
 
             MoveBlock();
             ChangeBlock(x, y);
-            StopBlock();
         }
     }
 
@@ -209,7 +206,6 @@ public class BlockScript : MonoBehaviour {
         {
             x = newX;
             y = newY;
-
         }
     }
 
@@ -270,7 +266,7 @@ public class BlockScript : MonoBehaviour {
             transform.Translate(Vector3.MoveTowards(transform.position, fieldScript.GetBlockPositionForFieldXY(newX, newY), 6f) - transform.position);
 
             SetBlockXY(newX, newY);
-            state = BlockState.None;
+            StopBlock();
         }
         else if ( state == BlockState.Swap ) //Move swapped blocks, check for matches then set them back
         {
@@ -294,7 +290,7 @@ public class BlockScript : MonoBehaviour {
 
             transform.Translate(Vector3.MoveTowards(transform.position, fieldScript.GetBlockPositionForFieldXY(newX, newY), 6f) - transform.position);
             fieldScript.CheckForMatchesAtBlock(this);
-            state = BlockState.None;
+            StopBlock();
 
             //PrintBlock("ChangeBlock:Swap");
         }
@@ -303,7 +299,7 @@ public class BlockScript : MonoBehaviour {
             SetBlockXY(newX, newY);
             SetBlockColor(newColor);
 
-            state = BlockState.None;
+            StopBlock();
         }
     }
 
@@ -322,8 +318,6 @@ public class BlockScript : MonoBehaviour {
 
         ChangeColorToNoMatches();
     }
-
-
     #endregion
 
 }
