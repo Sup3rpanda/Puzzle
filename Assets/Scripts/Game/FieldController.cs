@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public class FieldController : MonoBehaviour {
@@ -27,8 +28,8 @@ public class FieldController : MonoBehaviour {
     public int maxCol = 6;
     public int maxRow = 12;
     int fieldBlocksi = 0;
-    BlockScript[] fieldBlocks;
-
+    //BlockScript[] fieldBlocks;
+    Dictionary<int, BlockScript> fieldBlocks = new Dictionary<int, BlockScript>();
 
 
 
@@ -37,7 +38,7 @@ public class FieldController : MonoBehaviour {
         print("-----------------------------------------------------------------------------------------------");
 
         //gameControllerScript = gameController.GetComponent<MonoBehaviour>() as GameController;
-        fieldBlocks = new BlockScript[maxCol * maxRow + maxCol * 2]; //Main field, plus a row for push and lose cols
+        //fieldBlocks = new BlockScript[maxCol * maxRow + maxCol * 2]; //Main field, plus a row for push and lose cols
 
         //Find the far left corner of the field sprite and add half of a block size to it to find the position of 0,0, then increase x to above the push line
         fieldRenderer = GetComponent<Renderer>();
@@ -54,11 +55,11 @@ public class FieldController : MonoBehaviour {
         //Check and toggle lose conditions
         if (gameControllerScript.isLosingPlayer == false)
         {
-            foreach (BlockScript block in fieldBlocks)
+            foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
             {
-                if (block != null && block.y >= maxRow - 1)
+                if (kvp.Value != null && kvp.Value.y >= maxRow - 1)
                 {
-                    block.PrintBlock("Losing");
+                    kvp.Value.PrintBlock("Losing");
                     gameControllerScript.StartLose();
                     break;
                 }
@@ -68,9 +69,9 @@ public class FieldController : MonoBehaviour {
         {
             bool losing = false;
 
-            foreach (BlockScript block in fieldBlocks)
+            foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
             {
-                if (block != null && block.y >= maxRow - 1)
+                if (kvp.Value != null && kvp.Value.y >= maxRow - 1)
                 {
                     losing = true;
                 }
@@ -266,12 +267,12 @@ public class FieldController : MonoBehaviour {
             checkBlock.state != BlockState.Match &&
             checkBlock.state != BlockState.New)
         {
-            foreach (BlockScript block in fieldBlocks)
+            foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
             {
-                if (block != null && block != this)
+                if (kvp.Value != null && kvp.Value != this)
                 {
                     //Count how many blocks are below this to count the hole
-                    if (block.y >= 0 && block.x == checkBlock.x && block.y < checkBlock.y)
+                    if (kvp.Value.y >= 0 && kvp.Value.x == checkBlock.x && kvp.Value.y < checkBlock.y)
                     {
                         holeDepth--;
                     }
@@ -314,11 +315,11 @@ public class FieldController : MonoBehaviour {
     {
         if ( x < maxCol && y < maxRow )
         {
-            foreach (BlockScript block in fieldBlocks)
+            foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
             {
-                if (block != null && block.x == x && block.y == y)
+                if (kvp.Value != null && kvp.Value.x == x && kvp.Value.y == y)
                 {
-                    return block;
+                    return kvp.Value;
                 }
             }
 
@@ -376,27 +377,14 @@ public class FieldController : MonoBehaviour {
 
     void AddBlockToFieldBlocks (BlockScript addedBlock)
     {
-        fieldBlocks[fieldBlocksi] = addedBlock;
+        fieldBlocks.Add(fieldBlocksi, addedBlock);
+        addedBlock.key = fieldBlocksi;
         fieldBlocksi++;
     }
 
     public void RemoveBlockFromFieldBlocks(BlockScript removedBlock)
     {
-        int removedBlocki = -1;
-        foreach (BlockScript block in fieldBlocks)
-        {
-            if (block != null && block == removedBlock)
-            {
-                //print(block + " " + block.x + ", " + block.y);
-                removedBlocki = System.Array.IndexOf(fieldBlocks, block);
-                break;
-            }
-        }
-        if ( removedBlocki > -1)
-        {
-            fieldBlocks[fieldBlocksi] = null;
-            fieldBlocksi--;
-        }
+        fieldBlocks.Remove(removedBlock.key);
     }
 
     void CreateBlock (GameObject blockPrefab, int newX, int newY, BlockState newState = BlockState.New, BlockSpecial newSpecial = BlockSpecial.None)
@@ -465,12 +453,12 @@ public class FieldController : MonoBehaviour {
     public void PrintAllBlocks()
     {
         int i = 0;
-        print("Printing all blocks: " + fieldBlocksi + " -----------------------------------------------------");
-        foreach (BlockScript block in fieldBlocks)
+        print("Printing all blocks: " + fieldBlocks.Count + " -----------------------------------------------------");
+        foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
         {
-            if (block != null)
+            if (kvp.Value != null)
             {
-                block.PrintBlock("PrintAllBlocks", i.ToString());
+                kvp.Value.PrintBlock("PrintAllBlocks", i.ToString());
                 i++;
             }
         }
@@ -488,12 +476,12 @@ public class FieldController : MonoBehaviour {
             heldBlock.MoveBlock();
         }
 
-        foreach (BlockScript block in fieldBlocks)
+        foreach (KeyValuePair<int, BlockScript> kvp in fieldBlocks)
         {
-            if (block != null)
+            if (kvp.Value != null)
             {
-                block.MoveBlock();
-                block.ChangeBlock(block.x, block.y + 1);
+                kvp.Value.MoveBlock();
+                kvp.Value.ChangeBlock(kvp.Value.x, kvp.Value.y + 1);
                 //block.StopBlock();
             }
         }

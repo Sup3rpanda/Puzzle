@@ -14,6 +14,7 @@ public class BlockScript : MonoBehaviour {
     public FXController fxControllerScript;
 
     //Internal tags on status
+    public int key;
     public int x;
     public int y;
     public BlockColor color;
