@@ -28,17 +28,12 @@ public class FieldController : MonoBehaviour {
     public int maxCol = 6;
     public int maxRow = 12;
     int fieldBlocksi = 0;
-    //BlockScript[] fieldBlocks;
     Dictionary<int, BlockScript> fieldBlocks = new Dictionary<int, BlockScript>();
-
 
 
     // Use this for initialization
     void Start () {
         print("-----------------------------------------------------------------------------------------------");
-
-        //gameControllerScript = gameController.GetComponent<MonoBehaviour>() as GameController;
-        //fieldBlocks = new BlockScript[maxCol * maxRow + maxCol * 2]; //Main field, plus a row for push and lose cols
 
         //Find the far left corner of the field sprite and add half of a block size to it to find the position of 0,0, then increase x to above the push line
         fieldRenderer = GetComponent<Renderer>();
@@ -161,10 +156,9 @@ public class FieldController : MonoBehaviour {
         if (IsBlockEligibleForMatch(matchBlock) == true && CheckForHolesAtBlock(matchBlock) == 0)
         {
             BlockScript potentialMatchBlock;
-            int potentialMatchXi = 0;
-            int potentialMatchYi = 0;
-            BlockScript[] fieldMatchesX = new BlockScript[12];
-            BlockScript[] fieldMatchesY = new BlockScript[12];
+            int potentialMatchXi = 1;
+            int potentialMatchYi = 101;
+            Dictionary<int, BlockScript> fieldMatches = new Dictionary<int, BlockScript>();
 
             //matchBlock.PrintBlock("CheckforMatchesAtBlock", "------------------------------------------------------------------------");
 
@@ -172,21 +166,21 @@ public class FieldController : MonoBehaviour {
             potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x + 1, matchBlock.y);
             if (potentialMatchBlock != null)
             {
-                fieldMatchesX[potentialMatchXi] = potentialMatchBlock;
+                fieldMatches.Add(potentialMatchXi, potentialMatchBlock);
                 potentialMatchXi++;
 
                 //Check X+2
                 potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x + 2, matchBlock.y);
                 if (potentialMatchBlock != null)
                 {
-                    fieldMatchesX[potentialMatchXi] = potentialMatchBlock;
+                    fieldMatches.Add(potentialMatchXi, potentialMatchBlock);
                     potentialMatchXi++;
 
                     //Check X+3
                     potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x + 3, matchBlock.y);
                     if (potentialMatchBlock != null)
                     {
-                        fieldMatchesX[potentialMatchXi] = potentialMatchBlock;
+                        fieldMatches.Add(potentialMatchXi, potentialMatchBlock);
                         potentialMatchXi++;
                     }
                 }
@@ -196,22 +190,23 @@ public class FieldController : MonoBehaviour {
             potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x - 1, matchBlock.y);
             if (potentialMatchBlock != null)
             {
-                fieldMatchesX[potentialMatchXi] = potentialMatchBlock;
+                fieldMatches.Add(potentialMatchXi, potentialMatchBlock);
                 potentialMatchXi++;
 
                 //Check X-2
                 potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x - 2, matchBlock.y);
                 if (potentialMatchBlock != null)
                 {
-                    fieldMatchesX[potentialMatchXi] = potentialMatchBlock;
+                    fieldMatches.Add(potentialMatchXi, potentialMatchBlock);
                     potentialMatchXi++;
 
                     //Check X-3
                     potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x - 3, matchBlock.y);
                     if (potentialMatchBlock != null)
                     {
-                        fieldMatchesX[potentialMatchXi] = potentialMatchBlock;
+                        fieldMatches.Add(potentialMatchXi, potentialMatchBlock);
                         potentialMatchXi++;
+
                     }
                 }
             }
@@ -220,21 +215,21 @@ public class FieldController : MonoBehaviour {
             potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x, matchBlock.y + 1);
             if (potentialMatchBlock != null)
             {
-                fieldMatchesY[potentialMatchYi] = potentialMatchBlock;
+                fieldMatches.Add(potentialMatchYi, potentialMatchBlock);
                 potentialMatchYi++;
 
                 //Check Y+2
                 potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x, matchBlock.y + 2);
                 if (potentialMatchBlock != null)
                 {
-                    fieldMatchesY[potentialMatchYi] = potentialMatchBlock;
+                    fieldMatches.Add(potentialMatchYi, potentialMatchBlock);
                     potentialMatchYi++;
 
                     //Check Y+3
                     potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x, matchBlock.y + 3);
                     if (potentialMatchBlock != null)
                     {
-                        fieldMatchesY[potentialMatchYi] = potentialMatchBlock;
+                        fieldMatches.Add(potentialMatchYi, potentialMatchBlock);
                         potentialMatchYi++;
                     }
                 }
@@ -246,7 +241,7 @@ public class FieldController : MonoBehaviour {
             {
                 if (potentialMatchBlock.y >= 0)
                 {
-                    fieldMatchesY[potentialMatchYi] = potentialMatchBlock;
+                    fieldMatches.Add(potentialMatchYi, potentialMatchBlock);
                     potentialMatchYi++;
 
                     //Check y-2
@@ -255,14 +250,14 @@ public class FieldController : MonoBehaviour {
                     {
                         if (potentialMatchBlock.y >= 0)
                         {
-                            fieldMatchesY[potentialMatchYi] = potentialMatchBlock;
+                            fieldMatches.Add(potentialMatchYi, potentialMatchBlock);
                             potentialMatchYi++;
 
                             //Check y-3
                             potentialMatchBlock = GetMatchForBlockAtXY(matchBlock, matchBlock.x, matchBlock.y - 3);
                             if (potentialMatchBlock != null)
                             {
-                                fieldMatchesY[potentialMatchYi] = potentialMatchBlock;
+                                fieldMatches.Add(potentialMatchYi, potentialMatchBlock);
                                 potentialMatchYi++;
                             }
                         }
@@ -270,35 +265,30 @@ public class FieldController : MonoBehaviour {
                 }
             }
 
-            if (potentialMatchXi >= 2 && autoResolve == false || potentialMatchYi >= 2 && autoResolve == false)
+            if (potentialMatchXi >= 3 && autoResolve == false || potentialMatchYi >= 103 && autoResolve == false)
             {
                 return true;
             }
 
             //If enough matches, drop it and clear them
-            if (potentialMatchXi >= 2 || potentialMatchYi >= 2)
+            if (potentialMatchXi >= 3 || potentialMatchYi >= 103)
             {
-                int matchSize = 1;
-                BlockScript[] fieldMatchesFinal = new BlockScript[24];
-                fieldMatchesFinal[0] = matchBlock;
+                Dictionary<int, BlockScript> fieldMatchesFinal = new Dictionary<int, BlockScript>();
 
-                if ( matchBlock.state == BlockState.Held)
+                foreach (KeyValuePair<int, BlockScript> kvp in fieldMatches)
                 {
-                    matchBlock.PutDownBlock();
+                    if ( potentialMatchXi >= 3 && kvp.Key < 100 )
+                    {
+                        fieldMatchesFinal.Add(kvp.Value.key, kvp.Value);
+                    }
+                    else if ( potentialMatchYi >= 103 && kvp.Key > 100)
+                    {
+                        fieldMatchesFinal.Add(kvp.Value.key, kvp.Value);
+                    }
                 }
 
-                if (potentialMatchXi >= 2)
-                {
-                    Array.Copy(fieldMatchesX, 0, fieldMatchesFinal, matchSize, fieldMatchesX.Length);
-                    matchSize += potentialMatchXi;
-                }
-                if (potentialMatchYi >= 2)
-                {
-                    Array.Copy(fieldMatchesY, 0, fieldMatchesFinal, matchSize, fieldMatchesY.Length);
-                    matchSize += potentialMatchYi;
-                }
-
-                MatchBlocks(fieldMatchesFinal, matchSize);
+                fieldMatchesFinal.Add(0, matchBlock);
+                MatchBlocks(fieldMatchesFinal);
             }
 
         }
@@ -582,19 +572,19 @@ public class FieldController : MonoBehaviour {
         }
     }
 
-    void MatchBlocks(BlockScript[] fieldMatches, int matchSize)
+    void MatchBlocks(Dictionary<int, BlockScript> fieldMatches)
     {
         float delay = .25f;
-        print("Match Size/Block: (" + matchSize + ") " + fieldMatches[0] + " -------------------------------------------------------");
+        print("Match Size/Block: (" + fieldMatches.Count + ") " + fieldMatches[0] + " -------------------------------------------------------");
         fxControllerScript.Invoke("Match", 0f);
 
-        foreach (BlockScript block in fieldMatches)
+        foreach (KeyValuePair<int, BlockScript> kvp in fieldMatches)
         {
             delay += .25f;
-            MatchBlock(block, delay);
+            MatchBlock(kvp.Value, delay);
         }
 
-        gameControllerScript.MatchScore(matchSize);
+        gameControllerScript.MatchScore(fieldMatches.Count);
     }
 
     void MatchBlock (BlockScript block, float delay)

@@ -127,7 +127,7 @@ public class BlockScript : MonoBehaviour {
     {
         if (holeDepth > 0)
         {
-            PrintBlock("Drop", holeDepth.ToString());
+            //PrintBlock("Drop", holeDepth.ToString());
 
             PutDownBlock();
             MoveBlock();
