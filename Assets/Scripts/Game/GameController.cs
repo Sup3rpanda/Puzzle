@@ -127,7 +127,6 @@ public class GameController : MonoBehaviour {
             }
         }
 
-        #region State Control
         //All other non playing states
         if (gameState == GameState.Loading && SceneManager.GetActiveScene().isLoaded)
         {
@@ -147,6 +146,8 @@ public class GameController : MonoBehaviour {
             TogglePaused();
         }
     }
+
+    #region State Control
 
     public bool IsPlayable()
     {

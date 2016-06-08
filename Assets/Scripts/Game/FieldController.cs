@@ -139,6 +139,23 @@ public class FieldController : MonoBehaviour {
         }
     }
 
+    public bool CheckForMatchesAtSwap (BlockScript matchBlock, BlockScript swapBlock, bool autoResolve = true)
+    {
+        if ( swapBlock != null )
+        {
+            matchBlock.PrintBlock("Matches at Swap: Match", "-----");
+            swapBlock.PrintBlock("Matches at Swap: Swap");
+        }
+        if ( CheckForMatchesAtBlock(matchBlock, autoResolve) && CheckForMatchesAtBlock(swapBlock, autoResolve) )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public bool CheckForMatchesAtBlock (BlockScript matchBlock, bool autoResolve = true)
     {
         if (IsBlockEligibleForMatch(matchBlock) == true && CheckForHolesAtBlock(matchBlock) == 0)

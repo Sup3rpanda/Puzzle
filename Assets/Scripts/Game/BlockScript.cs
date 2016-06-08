@@ -46,7 +46,7 @@ public class BlockScript : MonoBehaviour {
         {
             float xMovement = Input.GetAxis("Mouse X") * 12f * Time.deltaTime;
             int xForPosition = fieldScript.GetBlockXForPosition(transform.position);
-            BlockScript swapBlock;
+            BlockScript swapBlock = null;
 
             //print("Held block (x,y),(pX): (" + x + ", " + y + ") (" + xForPosition + ")");
 
@@ -94,6 +94,7 @@ public class BlockScript : MonoBehaviour {
 
             DropBlock(fieldScript.CheckForHolesAtBlock(this));
             fieldScript.CheckForMatchesAtBlock(this, true);
+            //fieldScript.CheckForMatchesAtSwap(this, swapBlock, true);
 
         }
 
@@ -278,27 +279,11 @@ public class BlockScript : MonoBehaviour {
         }
         else if ( state == BlockState.Swap ) //Move swapped blocks, check for matches then set them back
         {
-            if ( x < fieldScript.maxCol)
-            {
-                SetBlockXY(newX, y);
-            }
-            else
-            {
-                Debug.LogException(new Exception(" (" + x + "/" + newX + "," + y + "/" + newY + ") state: " + state), this);
-            }
+            SetBlockXY(newX, newY);
 
-            if (y < fieldScript.maxRow)
-            {
-                SetBlockXY(x, newY);
-            }
-            else
-            {
-                Debug.LogException(new Exception(" (" + x + "/" + newX + "," + y + "/" + newY + ") state: " + state), this);
-            }
 
             transform.Translate(Vector3.MoveTowards(transform.position, fieldScript.GetBlockPositionForFieldXY(newX, newY), 6f) - transform.position);
             fieldScript.CheckForMatchesAtBlock(this);
-            StopBlock();
 
             //PrintBlock("ChangeBlock:Swap");
         }
