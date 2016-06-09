@@ -173,6 +173,12 @@ public class BlockScript : MonoBehaviour {
             MoveBlock();
             ChangeBlock(x, y);
         }
+        if (state == BlockState.Match)
+        {
+            fieldScript.heldBlock = null;
+            this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+            blockRenderer.sortingOrder = 0;
+        }
     }
 
     public void MoveBlock()

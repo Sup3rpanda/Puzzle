@@ -286,8 +286,9 @@ public class FieldController : MonoBehaviour {
                         fieldMatchesFinal.Add(kvp.Value.key, kvp.Value);
                     }
                 }
-
-                fieldMatchesFinal.Add(matchBlock.key, matchBlock);
+                matchBlock.state = BlockState.Match;
+                matchBlock.PutDownBlock();
+                fieldMatchesFinal.Add(0, matchBlock);
                 MatchBlocks(fieldMatchesFinal);
             }
 
