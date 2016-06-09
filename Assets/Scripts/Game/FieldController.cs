@@ -593,11 +593,7 @@ public class FieldController : MonoBehaviour {
         if (block != null)
         {
             //print("     " + block + " " + block.x + ", " + block.y);
-            block.state = BlockState.Match;
-            fxControllerScript.Invoke("BlockMatch", delay);
-            block.Invoke("MatchBlockResolve", gameControllerScript.matchDelay);
-
-            block.blockRenderer.material.color = new Color(.75f, .75f, .75f, .5f);
+            fxControllerScript.MatchBlock(block, delay);
         }
     }
 }

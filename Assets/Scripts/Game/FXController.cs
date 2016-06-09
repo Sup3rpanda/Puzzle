@@ -54,7 +54,7 @@ public class FXController : MonoBehaviour {
     public AudioClip aBlockDrop;
     public AudioClip aCombo;
     public AudioClip aMatch;
-    public AudioClip aBlockMatch;
+    public AudioClip aMatchBlock;
 
     void BlockSwap()
     {
@@ -76,9 +76,18 @@ public class FXController : MonoBehaviour {
         audioSource.PlayOneShot(aMatch);
     }
 
-    void BlockMatch()
+    public void MatchBlock(BlockScript block, float delay)
     {
-        audioSource.PlayOneShot(aBlockMatch);
+        block.state = BlockState.Match;
+        block.blockRenderer.material.color = new Color(.75f, .75f, .75f, .5f);
+
+        this.Invoke("MatchBlockResolve", delay);
+        block.Invoke("MatchBlockResolve", delay);
+    }
+
+    void MatchBlockResolve()
+    {
+        audioSource.PlayOneShot(aMatchBlock);
     }
     #endregion
 
