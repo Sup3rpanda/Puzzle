@@ -287,7 +287,7 @@ public class FieldController : MonoBehaviour {
                     }
                 }
 
-                fieldMatchesFinal.Add(0, matchBlock);
+                fieldMatchesFinal.Add(matchBlock.key, matchBlock);
                 MatchBlocks(fieldMatchesFinal);
             }
 

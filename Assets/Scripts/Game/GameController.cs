@@ -167,10 +167,12 @@ public class GameController : MonoBehaviour {
         {
             readyUI.text = "Paused, ESC to Continue";
             readyUI.enabled = true;
+            Time.timeScale = 0;
             gameState = GameState.Paused;
         }
         else if (gameState == GameState.Paused)
         {
+            Time.timeScale = 1;
             StateStartPlaying();
         }
     }
