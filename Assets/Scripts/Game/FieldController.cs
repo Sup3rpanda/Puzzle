@@ -593,7 +593,7 @@ public class FieldController : MonoBehaviour {
         if (block != null)
         {
             //print("     " + block + " " + block.x + ", " + block.y);
-            fxControllerScript.MatchBlock(block, delay);
+            fxControllerScript.MatchBlock(block, gameControllerScript.matchDelay, delay);
         }
     }
 }

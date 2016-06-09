@@ -76,13 +76,14 @@ public class FXController : MonoBehaviour {
         audioSource.PlayOneShot(aMatch);
     }
 
-    public void MatchBlock(BlockScript block, float delay)
+    public void MatchBlock(BlockScript block, float matchDelay, float blockDelay)
     {
         block.state = BlockState.Match;
         block.blockRenderer.material.color = new Color(.75f, .75f, .75f, .5f);
 
-        this.Invoke("MatchBlockResolve", delay);
-        block.Invoke("MatchBlockResolve", delay);
+        this.Invoke("MatchBlockResolve", blockDelay);
+        //Another FX here on each block to show explodey fx and sounds
+        block.Invoke("MatchBlockResolve", matchDelay);
     }
 
     void MatchBlockResolve()
