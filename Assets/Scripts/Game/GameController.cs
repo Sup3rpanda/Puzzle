@@ -14,6 +14,7 @@ public class GameController : MonoBehaviour {
     public GameObject fieldController;
     public GameObject fxController;
     public Text timeUI, scoreUI, hiScoreUI, roundUI, speedValueUI, difficultyUI, difficultyValueUI, stopUI, stopValueUI, readyUI, winLoseUI;
+    public Text comboUI, comboTimeUI;
     public GameObject loadingScreen;
 
     FieldController fieldScript;
@@ -42,6 +43,11 @@ public class GameController : MonoBehaviour {
     #region Countdown Vars
     float countdownDelay = 1f;
     float countdownElapsed = 0f;
+    #endregion
+    #region Combo Vars
+    int comboCount = 0;             //Current combo string count
+    public float comboTime = 2f;   //How long in between combo matches the combo will go
+    float comboEndTime;             //Elapsed time of when the current combo string will end
     #endregion
     #region Push Vars
     float nextPushTime;         //The elapsed time when push will trigger again
@@ -122,6 +128,15 @@ public class GameController : MonoBehaviour {
                     if (elapsedTime > loseTime && loseTime > 0)
                     {
                         StateStartLost();
+                    }
+                }
+
+                //Combo timing
+                if (comboCount > 0)
+                {
+                    if (elapsedTime > comboEndTime)
+                    {
+                        ComboReset();
                     }
                 }
             }
@@ -300,12 +315,13 @@ public class GameController : MonoBehaviour {
 
     public void MatchScore(int matchSize, int comboSize = 0)
     {
-        if (comboSize > 0)
+        if (comboSize > 0 )
         {
             score += 2 ^ comboSize * 40;
             score += 2 ^ matchSize * 15;
 
             scoreUI.text = score.ToString();
+            Combo();
         }
         else if (matchSize > 0)
         {
@@ -317,4 +333,17 @@ public class GameController : MonoBehaviour {
         Stop(matchSize, comboSize);
     }
 
+    void Combo()
+    {
+        comboCount += 1;
+        comboEndTime = elapsedTime + comboTime;
+        comboUI.text = comboCount.ToString();
+        comboTimeUI.text = comboEndTime.ToString();
+    }
+
+    void ComboReset()
+    {
+        comboCount = 0;
+        comboUI.text = comboCount.ToString();
+    }
 }

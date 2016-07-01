@@ -151,7 +151,7 @@ public class FieldController : MonoBehaviour {
         }
     }
 
-    public bool CheckForMatchesAtBlock (BlockScript matchBlock, bool autoResolve = true)
+    public bool CheckForMatchesAtBlock (BlockScript matchBlock, bool autoResolve = true, bool isCombo = false)
     {
         if (IsBlockEligibleForMatch(matchBlock) == true && CheckForHolesAtBlock(matchBlock) == 0)
         {
@@ -289,7 +289,15 @@ public class FieldController : MonoBehaviour {
                 matchBlock.state = BlockState.Match;
                 matchBlock.PutDownBlock();
                 fieldMatchesFinal.Add(0, matchBlock);
-                MatchBlocks(fieldMatchesFinal);
+
+                if (isCombo == true)
+                {
+                    MatchComboBlocks(fieldMatchesFinal);
+                }
+                else
+                {
+                    MatchBlocks(fieldMatchesFinal);
+                }
             }
 
         }
@@ -571,6 +579,21 @@ public class FieldController : MonoBehaviour {
         {
             CreateBlocksAtY(y);
         }
+    }
+
+    void MatchComboBlocks(Dictionary<int, BlockScript> fieldMatches)
+    {
+        float delay = .25f;
+        print("Combo Size/Block: (" + fieldMatches.Count + ") " + fieldMatches[0] + " -------------------------------------------------------");
+        fxControllerScript.Invoke("Combo", 0f);
+
+        foreach (KeyValuePair<int, BlockScript> kvp in fieldMatches)
+        {
+            delay += .25f;
+            MatchBlock(kvp.Value, delay);
+        }
+
+        gameControllerScript.MatchScore(0, fieldMatches.Count);
     }
 
     void MatchBlocks(Dictionary<int, BlockScript> fieldMatches)

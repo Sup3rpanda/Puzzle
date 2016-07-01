@@ -145,7 +145,7 @@ public class BlockScript : MonoBehaviour {
         if ( holes == 0)
         {
             fxControllerScript.SendMessage("BlockDrop");
-            Invoke("CheckForMatches", dropDelay);
+            Invoke("CheckForMatchesAfterDrop", dropDelay);
         }
         else
         {
@@ -153,9 +153,9 @@ public class BlockScript : MonoBehaviour {
         }
     }
 
-    void CheckForMatches()
+    void CheckForMatchesAfterDrop()
     {
-        fieldScript.CheckForMatchesAtBlock(this);
+        fieldScript.CheckForMatchesAtBlock(this, true, true);
     }
 
     public void PickUpBlock()
