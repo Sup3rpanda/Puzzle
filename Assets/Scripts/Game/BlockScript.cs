@@ -21,6 +21,9 @@ public class BlockScript : MonoBehaviour {
     public BlockSpecial special;
     public BlockState state;
 
+    //Timing
+    float dropDelay = .1f;
+
     // Use this for initialization
     void Start() {
 
@@ -131,7 +134,7 @@ public class BlockScript : MonoBehaviour {
 
             PutDownBlock();
             MoveBlock();
-            Invoke("DropBlockResolve", .15f);
+            Invoke("DropBlockResolve", dropDelay);
         }
     }
 
@@ -142,12 +145,17 @@ public class BlockScript : MonoBehaviour {
         if ( holes == 0)
         {
             fxControllerScript.SendMessage("BlockDrop");
-            fieldScript.CheckForMatchesAtBlock(this);
+            Invoke("CheckForMatches", dropDelay);
         }
         else
         {
             DropBlock(holes);
         }
+    }
+
+    void CheckForMatches()
+    {
+        fieldScript.CheckForMatchesAtBlock(this);
     }
 
     public void PickUpBlock()
