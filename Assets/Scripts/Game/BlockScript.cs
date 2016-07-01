@@ -292,6 +292,7 @@ public class BlockScript : MonoBehaviour {
             fieldScript.CheckForMatchesAtBlock(this);
 
             //PrintBlock("ChangeBlock:Swap");
+            StopBlock();
         }
         else if (newState == BlockState.New) //set new blocks
         {
